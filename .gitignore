@@ -1,0 +1,16 @@
+!/.idea/dictionaries/
+!/.idea/icon.png
+**/build
+*.aab
+*.iml
+*.jks
+.DS_Store
+.cxx
+.externalNativeBuild
+.gradle
+/.idea/*
+/build
+/captures
+/local.properties
+keystore.properties
+local.properties
