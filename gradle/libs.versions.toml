@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.9.22"
+kotlin = "2.0.0"
 
 [libraries]
 # Dependencies of the included build-logic
