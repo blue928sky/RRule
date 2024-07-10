@@ -1,5 +1,5 @@
 // https://github.com/pinterest/ktlint
-val ktlintVersion = "1.2.1"
+val ktlintVersion = "1.3.1"
 
 initscript {
     // https://github.com/diffplug/spotless/blob/main/plugin-gradle/CHANGES.md
