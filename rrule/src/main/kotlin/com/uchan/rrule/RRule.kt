@@ -77,22 +77,22 @@ data class RRule(
                 .replace(oldValue = "$NAME:", newValue = "")
                 .split(";")
             components.forEach { component ->
-                val componentPair = runCatching {
+                val (key, value) = runCatching {
                     component.split("=").let { it[0] to it[1] }
-                }.getOrNull()
-                when (componentPair?.first) {
+                }.getOrElse { return@forEach }
+                when (key) {
                     FREQ -> freq = runCatching {
-                        enumValueOf<Frequency>(name = componentPair.second)
+                        enumValueOf<Frequency>(name = value)
                     }.getOrDefault(defaultValue = Frequency.DAILY)
 
-                    INTERVAL -> interval = componentPair.second.toInt()
+                    INTERVAL -> interval = value.toInt()
                     BYDAY -> byDay = runCatching {
-                        componentPair.second.mapToSet(Week::initialValueOf)
+                        value.mapToSet(Week::initialValueOf)
                     }.getOrDefault(defaultValue = emptySet())
 
-                    BYMONTH -> byMonth = componentPair.second.mapToSet(String::toInt)
-                    BYMONTHDAY -> byMonthDay = componentPair.second.mapToSet(String::toInt)
-                    BYSETPOS -> bySetPos = componentPair.second.mapToSet(String::toInt)
+                    BYMONTH -> byMonth = value.mapToSet(String::toInt)
+                    BYMONTHDAY -> byMonthDay = value.mapToSet(String::toInt)
+                    BYSETPOS -> bySetPos = value.mapToSet(String::toInt)
                 }
             }
 
