@@ -106,7 +106,6 @@ data class RRule(
             )
         }
 
-        private fun <R> String.mapToSet(transform: (String) -> R): Set<R> =
-            split(",").map(transform).toSet()
+        private fun <R> String.mapToSet(transform: (String) -> R): Set<R> = split(",").map(transform).toSet()
     }
 }

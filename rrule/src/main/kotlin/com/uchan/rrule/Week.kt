@@ -14,7 +14,8 @@ enum class Week(val initial: String) {
         val WEEKDAYS = setOf(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)
         val WEEKEND = setOf(SATURDAY, SUNDAY)
 
-        fun initialValueOf(initial: String): Week =
-            entries.find { it.initial == initial } ?: throw IllegalArgumentException()
+        fun initialValueOf(initial: String): Week = entries.find {
+            it.initial == initial
+        } ?: throw IllegalArgumentException()
     }
 }
