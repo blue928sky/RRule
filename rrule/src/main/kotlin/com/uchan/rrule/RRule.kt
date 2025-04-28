@@ -1,5 +1,17 @@
 package com.uchan.rrule
 
+/**
+ * Data class for handling rrule in Kotlin
+ *
+ * @param freq Frequency. Default = [Frequency.DAILY].
+ * @param interval Repeat interval. Default = 1. Must be 0 or greater.
+ * @param byDay Specifies day of week. Default = emptySet() [Week].
+ * @param byMonth Specifies month. Default = emptySet(). between 1 and 12.
+ * @param byMonthDay Specifies day of month. Default = emptySet(). between -31 and -1 or between 1
+ *   and 31.
+ * @param bySetPos Specifies the N-th iteration in the rule. Default = emptySet(). between -366 and -1
+ *   or  between 1 and 366.
+ */
 data class RRule(
     val freq: Frequency = Frequency.DAILY,
     val interval: Int = 1,
@@ -20,7 +32,7 @@ data class RRule(
         get() = listOf(isIntervalValid, isByMonthValid, isByMonthDayValid, isBySetPosValid).all { it }
 
     /**
-     * Converted to string for iCalendar(RFC 2445)
+     * Converted to string for iCalendar(RFC 2445).
      */
     fun toRFC5545String(): String {
         requirePrecondition()
@@ -68,7 +80,10 @@ data class RRule(
         const val BYSETPOS = "BYSETPOS"
 
         /**
-         * Functions like secondary constructor
+         * Functions like secondary constructor.
+         *
+         *     val rrule = RRule(rfc5545String = "RRULE:FREQ=DAILY")
+         *
          */
         operator fun invoke(rfc5545String: String): RRule {
             var freq: Frequency = Frequency.DAILY
