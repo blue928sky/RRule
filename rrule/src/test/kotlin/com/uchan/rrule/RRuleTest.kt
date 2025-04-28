@@ -2,6 +2,7 @@ package com.uchan.rrule
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -32,6 +33,12 @@ class RRuleTest {
     }
 
     @Test
+    fun toRFC5545String_freqLower_test() {
+        val rrule = RRule(rfc5545String = "RRULE:FREQ=monthly")
+        assertEquals("RRULE:FREQ=MONTHLY", rrule.toRFC5545String())
+    }
+
+    @Test
     fun toRFC5545String_interval_test() {
         listOf(2, 3, 5).forEach {
             val rrule = RRule(rfc5545String = "RRULE:INTERVAL=$it")
@@ -40,6 +47,14 @@ class RRuleTest {
 
         val rrule = RRule(interval = 1)
         assertEquals("RRULE:FREQ=DAILY", rrule.toRFC5545String())
+    }
+
+    @Test
+    fun toRFC5545String_freqInvalid_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(interval = -1).toRFC5545String()
+        }
+        assertEquals("INTERVAL must be positive number", exception.message)
     }
 
     @Test
@@ -71,6 +86,16 @@ class RRuleTest {
     }
 
     @Test
+    fun toRFC5545String_byMonthInvalid_test() {
+        listOf(0, 13).forEach {
+            val exception = assertFailsWith<IllegalArgumentException> {
+                RRule(byMonth = setOf(it)).toRFC5545String()
+            }
+            assertEquals("BYMONTH must be number in range 1-12", exception.message)
+        }
+    }
+
+    @Test
     fun toRFC5545String_byMonthDay_test() {
         listOf(1, 3, 31).forEach {
             val rrule = RRule(rfc5545String = "RRULE:FREQ=YEARLY;BYMONTHDAY=$it")
@@ -85,6 +110,16 @@ class RRuleTest {
     }
 
     @Test
+    fun toRFC5545String_byMonthDayInvalid_test() {
+        listOf(-32, 0, 32).forEach {
+            val exception = assertFailsWith<IllegalArgumentException> {
+                RRule(byMonthDay = setOf(it)).toRFC5545String()
+            }
+            assertEquals("BYMONTHDAY must be number in range (-31..-1, 1..31)", exception.message)
+        }
+    }
+
+    @Test
     fun toRFC5545String_bySetPos_test() {
         listOf(-1, 2, 3).forEach {
             val rrule = RRule(rfc5545String = "RRULE:FREQ=DAILY;BYDAY=MO;BYSETPOS=$it")
@@ -96,6 +131,16 @@ class RRuleTest {
     fun toRFC5545String_bySetPos_multiple_test() {
         val rrule = RRule(rfc5545String = "RRULE:FREQ=DAILY;BYDAY=MO;BYSETPOS=1,-1")
         assertEquals("RRULE:FREQ=DAILY;BYDAY=MO;BYSETPOS=1,-1", rrule.toRFC5545String())
+    }
+
+    @Test
+    fun toRFC5545String_bySetPosInvalid_test() {
+        listOf(-367, 0, 367).forEach {
+            val exception = assertFailsWith<IllegalArgumentException> {
+                RRule(bySetPos = setOf(it)).toRFC5545String()
+            }
+            assertEquals("BYSETPOS must be number in range (-366..-1, 1..366)", exception.message)
+        }
     }
 
     @Test
@@ -171,6 +216,88 @@ class RRuleTest {
             RRule(bySetPos = setOf(0)),
         ).forEach {
             assertFalse(it.isValid)
+        }
+    }
+
+    @Test
+    fun freqInvalid_throwIllegalArgumentException_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(rfc5545String = "RRULE:FREQ=day")
+        }
+        assertEquals("FREQ must be in format DAILY,WEEKLY,MONTHLY,YEARLY", exception.message)
+    }
+
+    @Test
+    fun intervalNonNumeric_throwIllegalArgumentException_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(rfc5545String = "RRULE:INTERVAL=two")
+        }
+        assertEquals("INTERVAL must be positive number", exception.message)
+    }
+
+    @Test
+    fun byDayNonNumeric_throwIllegalArgumentException_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(rfc5545String = "FREQ=MONTHLY;BYDAY=NA")
+        }
+        assertEquals("BYDAY must be in format MO,TU,WE,TH,FR,SA,SU", exception.message)
+    }
+
+    @Test
+    fun byMonthNonNumeric_throwIllegalArgumentException_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(rfc5545String = "RRULE:FREQ=YEARLY;BYMONTH=two")
+        }
+        assertEquals("BYMONTH must be number in range 1-12", exception.message)
+    }
+
+    @Test
+    fun byMonthInvalidNumber_throwIllegalArgumentException_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(rfc5545String = "RRULE:FREQ=YEARLY;BYMONTH=13")
+        }
+        assertEquals("BYMONTH must be number in range 1-12", exception.message)
+    }
+
+    @Test
+    fun byMonthDayNonNumeric_throwIllegalArgumentException_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(rfc5545String = "RRULE:FREQ=MONTHLY;BYMONTHDAY=two")
+        }
+        assertEquals("BYMONTHDAY must be number in range (-31..-1, 1..31)", exception.message)
+    }
+
+    @Test
+    fun byMonthDayInvalidNumber_throwIllegalArgumentException_test() {
+        listOf(
+            "RRULE:FREQ=MONTHLY;BYMONTHDAY=0",
+            "RRULE:FREQ=MONTHLY;BYMONTHDAY=32",
+        ).forEach {
+            val exception = assertFailsWith<IllegalArgumentException> {
+                RRule(rfc5545String = it)
+            }
+            assertEquals("BYMONTHDAY must be number in range (-31..-1, 1..31)", exception.message)
+        }
+    }
+
+    @Test
+    fun isBySetPosValidNonNumeric_throwIllegalArgumentException_test() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            RRule(rfc5545String = "RRULE:FREQ=MONTHLY;BYSETPOS=two")
+        }
+        assertEquals("BYSETPOS must be number in range (-366..-1, 1..366)", exception.message)
+    }
+
+    @Test
+    fun isBySetPosValidInvalidNumber_throwIllegalArgumentException_test() {
+        listOf(
+            "RRULE:FREQ=MONTHLY;BYSETPOS=0",
+            "RRULE:FREQ=MONTHLY;BYSETPOS=367",
+        ).forEach {
+            val exception = assertFailsWith<IllegalArgumentException> {
+                RRule(rfc5545String = it)
+            }
+            assertEquals("BYSETPOS must be number in range (-366..-1, 1..366)", exception.message)
         }
     }
 }
