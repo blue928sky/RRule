@@ -11,46 +11,50 @@ data class RRule(
     val isIntervalValid
         get() = interval >= 0
     val isByMonthValid
-        get() = byMonth.all((1..12)::contains)
+        get() = byMonth.all(byMonthValidator())
     val isByMonthDayValid
-        get() = byMonthDay.all { (-31..31).contains(it) && it != 0 }
+        get() = byMonthDay.all(byMonthDayValidator())
     val isBySetPosValid
-        get() = bySetPos.all { (-366..366).contains(it) && it != 0 }
+        get() = bySetPos.all(bySetPosValidator())
     val isValid: Boolean
         get() = listOf(isIntervalValid, isByMonthValid, isByMonthDayValid, isBySetPosValid).all { it }
 
     /**
      * Converted to string for iCalendar(RFC 2445)
      */
-    fun toRFC5545String(): String = buildString {
-        append(NAME, ":")
+    fun toRFC5545String(): String {
+        requirePrecondition()
 
-        append(FREQ, "=")
-        append(freq)
+        return buildString {
+            append(NAME, ":")
 
-        if (interval > 1) {
-            append(";", INTERVAL, "=")
-            append(interval)
-        }
+            append(FREQ, "=")
+            append(freq)
 
-        if (byDay.isNotEmpty()) {
-            append(";", BYDAY, "=")
-            append(byDay.joinToString(separator = ",") { it.initial })
-        }
+            if (interval > 1) {
+                append(";", INTERVAL, "=")
+                append(interval)
+            }
 
-        if (byMonth.isNotEmpty()) {
-            append(";", BYMONTH, "=")
-            append(byMonth.joinToString(separator = ","))
-        }
+            if (byDay.isNotEmpty()) {
+                append(";", BYDAY, "=")
+                append(byDay.joinToString(separator = ",", transform = Week::initial))
+            }
 
-        if (byMonthDay.isNotEmpty()) {
-            append(";", BYMONTHDAY, "=")
-            append(byMonthDay.joinToString(separator = ","))
-        }
+            if (byMonth.isNotEmpty()) {
+                append(";", BYMONTH, "=")
+                append(byMonth.joinToString(separator = ","))
+            }
 
-        if (bySetPos.isNotEmpty()) {
-            append(";", BYSETPOS, "=")
-            append(bySetPos.joinToString(separator = ","))
+            if (byMonthDay.isNotEmpty()) {
+                append(";", BYMONTHDAY, "=")
+                append(byMonthDay.joinToString(separator = ","))
+            }
+
+            if (bySetPos.isNotEmpty()) {
+                append(";", BYSETPOS, "=")
+                append(bySetPos.joinToString(separator = ","))
+            }
         }
     }
 
@@ -82,17 +86,50 @@ data class RRule(
                 }.getOrElse { return@forEach }
                 when (key) {
                     FREQ -> freq = runCatching {
-                        enumValueOf<Frequency>(name = value)
-                    }.getOrDefault(defaultValue = Frequency.DAILY)
+                        enumValueOf<Frequency>(name = value.uppercase())
+                    }.getOrElse {
+                        throw IllegalArgumentException(createFrequencyValidateErrorMessage())
+                    }
 
-                    INTERVAL -> interval = value.toInt()
+                    INTERVAL -> runCatching {
+                        require(value.toInt() >= 0)
+                        interval = value.toInt()
+                    }.getOrElse {
+                        throw IllegalArgumentException(INTERVAL_VALIDATE_ERROR_MESSAGE)
+                    }
+
                     BYDAY -> byDay = runCatching {
-                        value.mapToSet(Week::initialValueOf)
-                    }.getOrDefault(defaultValue = emptySet())
+                        value.mapToSet(transform = Week::initialValueOf)
+                    }.getOrElse {
+                        throw IllegalArgumentException(createByDayValidateErrorMessage())
+                    }
 
-                    BYMONTH -> byMonth = value.mapToSet(String::toInt)
-                    BYMONTHDAY -> byMonthDay = value.mapToSet(String::toInt)
-                    BYSETPOS -> bySetPos = value.mapToSet(String::toInt)
+                    BYMONTH -> runCatching {
+                        byMonth = value.mapToSet(
+                            validate = byMonthValidator(),
+                            transform = String::toInt,
+                        )
+                    }.getOrElse {
+                        throw IllegalArgumentException(BYMONTH_VALIDATE_ERROR_MESSAGE)
+                    }
+
+                    BYMONTHDAY -> runCatching {
+                        byMonthDay = value.mapToSet(
+                            validate = byMonthDayValidator(),
+                            transform = String::toInt,
+                        )
+                    }.getOrElse {
+                        throw IllegalArgumentException(BYMONTHDAY_VALIDATE_ERROR_MESSAGE)
+                    }
+
+                    BYSETPOS -> runCatching {
+                        bySetPos = value.mapToSet(
+                            validate = bySetPosValidator(),
+                            transform = String::toInt,
+                        )
+                    }.getOrElse {
+                        throw IllegalArgumentException(BYSETPOS_VALIDATE_ERROR_MESSAGE)
+                    }
                 }
             }
 
@@ -106,6 +143,39 @@ data class RRule(
             )
         }
 
-        private fun <R> String.mapToSet(transform: (String) -> R): Set<R> = split(",").map(transform).toSet()
+        private fun byMonthValidator(): (Int) -> Boolean = (1..12)::contains
+
+        private fun byMonthDayValidator(): (Int) -> Boolean = {
+            it != 0 && (-31..31).contains(it)
+        }
+
+        private fun bySetPosValidator(): (Int) -> Boolean = {
+            it != 0 && (-366..366).contains(it)
+        }
+
+        private fun <R> String.mapToSet(
+            validate: (R) -> Boolean = { true },
+            transform: (String) -> R,
+        ): Set<R> {
+            val list = split(",").map(transform)
+            require(list.all(validate))
+
+            return list.toSet()
+        }
+    }
+
+    private fun requirePrecondition() {
+        require(isIntervalValid) { INTERVAL_VALIDATE_ERROR_MESSAGE }
+        require(isByMonthValid) { BYMONTH_VALIDATE_ERROR_MESSAGE }
+        require(isByMonthDayValid) { BYMONTHDAY_VALIDATE_ERROR_MESSAGE }
+        require(isBySetPosValid) { BYSETPOS_VALIDATE_ERROR_MESSAGE }
     }
 }
+
+private const val INTERVAL_VALIDATE_ERROR_MESSAGE = "INTERVAL must be positive number"
+private const val BYMONTH_VALIDATE_ERROR_MESSAGE = "BYMONTH must be number in range 1-12"
+private const val BYMONTHDAY_VALIDATE_ERROR_MESSAGE = "BYMONTHDAY must be number in range (-31..-1, 1..31)"
+private const val BYSETPOS_VALIDATE_ERROR_MESSAGE = "BYSETPOS must be number in range (-366..-1, 1..366)"
+
+private fun createFrequencyValidateErrorMessage() = "FREQ must be in format ${Frequency.entries.joinToString(separator = ",")}"
+private fun createByDayValidateErrorMessage() = "BYDAY must be in format ${Week.entries.map(Week::initial).joinToString(separator = ",")}"
