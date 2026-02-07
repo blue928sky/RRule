@@ -2,16 +2,16 @@
 
 # RRule
 
-KotlinでiCalendar(RFC 5545)の繰り返しルールを簡単に処理するように実装したRepository。
+Kotlin で iCalendar (RFC 5545) の繰り返しルールを簡単に処理するように実装した Repository。
 
 ## 前提条件
 
-- 元々、Androidのプロジェクトで使用していたものを切り離して作成しているため、[`build-logic`](https://github.com/blue928sky/RRule/tree/main/build-logic)周りはAndroidのような設定になっていますが、Androidに依存しないように切り出しているのでJVMでも利用できるはずです。
-- Androidのプロジェクトで必要だったのは日付に関する値であったため、時間などの `BYHOUR` や使用していない `COUNT` は現在サポートされていません。
+- 元々、Android のプロジェクトで使用していたものを切り離して作成しているため、[`build-logic`](https://github.com/blue928sky/RRule/tree/main/build-logic) 周りはAndroidのような設定になっていますが、Android に依存しないように切り出しているので JVM でも利用できるはずです。
+- Android のプロジェクトで必要だったのは日付に関する値であったため、時間などの `BYHOUR` や使用していない `COUNT` は現在サポートされていません。
 
 ## 使用例
 
-```kotlin
+```kt
 val rrule = RRule("RRULE:FREQ=MONTHLY;INTERVAL=3;BYDAY=SU;BYSETPOS=3")
 
 rrule.freq
@@ -23,9 +23,9 @@ rrule.bySetPos
 // ...
 ```
 
-RRuleをiCalendar(RFC 5545)文字列に変換。
+RRule を iCalendar (RFC 5545) 文字列に変換。
 
-```kotlin
+```kt
 val rfc5545String = rrule.toRFC5545String()
 ```
 
@@ -33,12 +33,12 @@ val rfc5545String = rrule.toRFC5545String()
 
 ### Unitテスト
 
-```bat
+```sh
 ./gradlew test
 ```
 
 ### Spotlessテスト
 
-```bat
-./gradlew spotlessCheck --init-script gradle/init.gradle.kts --no-configuration-cache
+```sh
+./gradlew spotlessCheck
 ```

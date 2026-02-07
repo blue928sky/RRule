@@ -1,4 +1,5 @@
 import com.uchan.rrule.configureKotlinJvm
+import com.uchan.rrule.configureSpotlessForJvm
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -9,6 +10,7 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
                 apply("org.jetbrains.kotlin.jvm")
             }
             configureKotlinJvm()
+            configureSpotlessForJvm()
         }
     }
 }

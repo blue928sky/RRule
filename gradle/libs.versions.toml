@@ -1,14 +1,19 @@
 [versions]
-kotlin = "2.0.21"
+kotlin = "2.3.0"
+ktlint = "1.7.2"
+spotless = "8.2.1"
 
 [libraries]
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 
 # Dependencies of the included build-logic
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+spotless-gradlePlugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 # Plugins defined by this project
 rrule-jvm-library = { id = "rrule.jvm.library" }
+rrule-root = { id = "rrule.root" }

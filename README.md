@@ -11,7 +11,7 @@ Repository implemented in Kotlin to easily handle iCalendar (RFC 5545) repetitio
 
 ## Usage Sample
 
-```kotlin
+```kt
 val rrule = RRule("RRULE:FREQ=MONTHLY;INTERVAL=3;BYDAY=SU;BYSETPOS=3")
 
 rrule.freq
@@ -25,7 +25,7 @@ rrule.bySetPos
 
 Convert RRule to iCalendar (RFC 5545) string.
 
-```kotlin
+```kt
 val rfc5545String = rrule.toRFC5545String()
 ```
 
@@ -33,13 +33,12 @@ val rfc5545String = rrule.toRFC5545String()
 
 ### Unit test
 
-```bat
+```sh
 ./gradlew test
 ```
 
 ### Spotless test
 
-```bat
+```sh
 ./gradlew spotlessCheck --init-script gradle/init.gradle.kts --no-configuration-cache
 ```
-

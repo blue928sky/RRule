@@ -2,6 +2,20 @@
 # This configuration is used by ktlint when spotless invokes it
 
 [*.{kt,kts}]
+max_line_length = 140
+end_of_line = lf
+continuation_indent_size = 4
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
 ij_kotlin_indent_before_arrow_on_new_line = false
+ktlint_function_naming_ignore_when_annotated_with = Test
+ktlint_standard_backing-property-naming = disabled
+ktlint_standard_binary-expression-wrapping = disabled
+ktlint_standard_chain-method-continuation = disabled
+ktlint_standard_class-signature = disabled
+ktlint_standard_condition-wrapping = disabled
+ktlint_standard_function-expression-body = disabled
+ktlint_standard_function-literal = disabled
+ktlint_standard_function-signature = disabled
+ktlint_standard_function-type-modifier-spacing = disabled
+ktlint_standard_multiline-loop = disabled
