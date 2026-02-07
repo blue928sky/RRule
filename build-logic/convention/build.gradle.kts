@@ -20,13 +20,18 @@ kotlin {
 
 dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
+    compileOnly(libs.spotless.gradlePlugin)
 }
 
 gradlePlugin {
     plugins {
         register("jvmLibrary") {
-            id = "rrule.jvm.library"
+            id = libs.plugins.rrule.jvm.library.get().pluginId
             implementationClass = "JvmLibraryConventionPlugin"
+        }
+        register("root") {
+            id = libs.plugins.rrule.root.get().pluginId
+            implementationClass = "RootPlugin"
         }
     }
 }
