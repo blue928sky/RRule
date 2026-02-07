@@ -1,9 +1,9 @@
 // https://github.com/pinterest/ktlint
-val ktlintVersion = "1.4.0"
+val ktlintVersion = "1.7.2"
 
 initscript {
     // https://github.com/diffplug/spotless/blob/main/plugin-gradle/CHANGES.md
-    val spotlessVersion = "6.25.0"
+    val spotlessVersion = "8.2.1"
 
     repositories {
         mavenCentral()
