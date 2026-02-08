@@ -1,5 +1,17 @@
 package com.uchan.rrule
 
+import com.uchan.rrule.RRuleSyntax.BYDAY
+import com.uchan.rrule.RRuleSyntax.BYMONTH
+import com.uchan.rrule.RRuleSyntax.BYMONTHDAY
+import com.uchan.rrule.RRuleSyntax.BYSETPOS
+import com.uchan.rrule.RRuleSyntax.FREQ
+import com.uchan.rrule.RRuleSyntax.INTERVAL
+import com.uchan.rrule.RRuleSyntax.KEY_VALUE_SEPARATOR
+import com.uchan.rrule.RRuleSyntax.LIST_SEPARATOR
+import com.uchan.rrule.RRuleSyntax.PARTS_SEPARATOR
+import com.uchan.rrule.RRuleSyntax.PROPERTY_NAME
+import com.uchan.rrule.RRuleSyntax.PROPERTY_SEPARATOR
+
 /**
  * Data class for handling rrule in Kotlin
  *
@@ -38,47 +50,39 @@ data class RRule(
         requirePrecondition()
 
         return buildString {
-            append(NAME, ":")
+            append(PROPERTY_NAME, PROPERTY_SEPARATOR)
 
-            append(FREQ, "=")
+            append(FREQ, KEY_VALUE_SEPARATOR)
             append(freq)
 
             if (interval > 1) {
-                append(";", INTERVAL, "=")
+                append(PARTS_SEPARATOR, INTERVAL, KEY_VALUE_SEPARATOR)
                 append(interval)
             }
 
             if (byDay.isNotEmpty()) {
-                append(";", BYDAY, "=")
-                append(byDay.joinToString(separator = ",", transform = Week::initial))
+                append(PARTS_SEPARATOR, BYDAY, KEY_VALUE_SEPARATOR)
+                append(byDay.joinToString(separator = LIST_SEPARATOR, transform = Week::initial))
             }
 
             if (byMonth.isNotEmpty()) {
-                append(";", BYMONTH, "=")
-                append(byMonth.joinToString(separator = ","))
+                append(PARTS_SEPARATOR, BYMONTH, KEY_VALUE_SEPARATOR)
+                append(byMonth.joinToString(separator = LIST_SEPARATOR))
             }
 
             if (byMonthDay.isNotEmpty()) {
-                append(";", BYMONTHDAY, "=")
-                append(byMonthDay.joinToString(separator = ","))
+                append(PARTS_SEPARATOR, BYMONTHDAY, KEY_VALUE_SEPARATOR)
+                append(byMonthDay.joinToString(separator = LIST_SEPARATOR))
             }
 
             if (bySetPos.isNotEmpty()) {
-                append(";", BYSETPOS, "=")
-                append(bySetPos.joinToString(separator = ","))
+                append(PARTS_SEPARATOR, BYSETPOS, KEY_VALUE_SEPARATOR)
+                append(bySetPos.joinToString(separator = LIST_SEPARATOR))
             }
         }
     }
 
     companion object {
-        private const val NAME = "RRULE"
-        const val FREQ = "FREQ"
-        const val INTERVAL = "INTERVAL"
-        const val BYDAY = "BYDAY"
-        const val BYMONTH = "BYMONTH"
-        const val BYMONTHDAY = "BYMONTHDAY"
-        const val BYSETPOS = "BYSETPOS"
-
         /**
          * Functions like secondary constructor.
          *
@@ -87,10 +91,10 @@ data class RRule(
          */
         operator fun invoke(rfc5545String: String): RRule {
             val components = rfc5545String
-                .removePrefix("$NAME:")
-                .split(";")
+                .removePrefix("$PROPERTY_NAME$PROPERTY_SEPARATOR")
+                .split(PARTS_SEPARATOR)
                 .associate { component ->
-                    val parts = component.split("=", limit = 2)
+                    val parts = component.split(KEY_VALUE_SEPARATOR, limit = 2)
                     if (parts.size < 2) "" to "" else parts[0] to parts[1]
                 }
 
@@ -138,8 +142,8 @@ private const val INTERVAL_VALIDATE_ERROR_MESSAGE = "INTERVAL must be positive n
 private const val BYMONTH_VALIDATE_ERROR_MESSAGE = "BYMONTH must be number in range 1-12"
 private const val BYMONTHDAY_VALIDATE_ERROR_MESSAGE = "BYMONTHDAY must be number in range (-31..-1, 1..31)"
 private const val BYSETPOS_VALIDATE_ERROR_MESSAGE = "BYSETPOS must be number in range (-366..-1, 1..366)"
-private val FREQUENCY_ENTRIES = Frequency.entries.joinToString(separator = ",")
-private val WEEK_ENTRIES = Week.entries.joinToString(separator = ",", transform = Week::initial)
+private val FREQUENCY_ENTRIES = Frequency.entries.joinToString(separator = LIST_SEPARATOR)
+private val WEEK_ENTRIES = Week.entries.joinToString(separator = LIST_SEPARATOR, transform = Week::initial)
 
 private fun createFrequencyValidateErrorMessage() = "FREQ must be in format $FREQUENCY_ENTRIES"
 private fun createByDayValidateErrorMessage() = "BYDAY must be in format $WEEK_ENTRIES"
