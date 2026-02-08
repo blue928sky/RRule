@@ -37,8 +37,8 @@ val rfc5545String = rrule.toRFC5545String()
 ./gradlew test
 ```
 
-### Spotless test
+### Check
 
 ```sh
-./gradlew spotlessCheck --init-script gradle/init.gradle.kts --no-configuration-cache
+./gradlew check
 ```

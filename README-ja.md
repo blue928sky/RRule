@@ -31,14 +31,14 @@ val rfc5545String = rrule.toRFC5545String()
 
 ## テストの実行
 
-### Unitテスト
+### Unit テスト
 
 ```sh
 ./gradlew test
 ```
 
-### Spotlessテスト
+### Check
 
 ```sh
-./gradlew spotlessCheck
+./gradlew check
 ```
