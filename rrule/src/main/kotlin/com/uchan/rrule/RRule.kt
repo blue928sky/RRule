@@ -124,26 +124,6 @@ data class RRule(
                 bySetPos = parseSet(BYSETPOS, bySetPosValidator(), BYSETPOS_VALIDATE_ERROR_MESSAGE),
             )
         }
-
-        private fun byMonthValidator(): (Int) -> Boolean = (1..12)::contains
-
-        private fun byMonthDayValidator(): (Int) -> Boolean = {
-            it != 0 && (-31..31).contains(it)
-        }
-
-        private fun bySetPosValidator(): (Int) -> Boolean = {
-            it != 0 && (-366..366).contains(it)
-        }
-
-        private fun <R> String.mapToSet(
-            validate: (R) -> Boolean = { true },
-            transform: (String) -> R,
-        ): Set<R> {
-            val list = split(",").map(transform)
-            require(list.all(validate))
-
-            return list.toSet()
-        }
     }
 
     private fun requirePrecondition() {
